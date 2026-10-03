@@ -1,6 +1,7 @@
 package dev.salint.engine;
 
 import dev.salint.engine.graphics.Mesh;
+import dev.salint.engine.graphics.Renderer;
 import dev.salint.engine.graphics.Shader;
 import dev.salint.engine.graphics.Texture;
 import dev.salint.engine.scene.Camera;
@@ -97,24 +98,20 @@ public class Main {
         glActiveTexture(GL_TEXTURE0);
         texture.bind();
 
+        Renderer renderer = new Renderer();
+
         while(!window.shouldClose()) {
 
             double currentTime = GLFW.glfwGetTime();
             float deltaTime = (float) (currentTime - lastTime);
             lastTime = currentTime;
 
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            renderer.begin();
 
             transform.rotation.y += 1.0f * deltaTime;
             transform.rotation.x += 0.5f * deltaTime;
 
-            shader.bind();
-            shader.setMatrix4f("model", transform.getModelMatrix());
-            shader.setMatrix4f("view", camera.getViewMatrix());
-            shader.setMatrix4f("projection", projection);
-            shader.setInt("textureSampler", 0);
-
-            triangle.draw();
+            renderer.render(triangle, shader, texture, transform, camera, projection);
 
             window.update();
         }
