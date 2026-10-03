@@ -1,28 +1,17 @@
 package dev.salint.engine;
 
-import dev.salint.engine.graphics.Mesh;
-import dev.salint.engine.graphics.Renderer;
-import dev.salint.engine.graphics.Shader;
-import dev.salint.engine.graphics.Texture;
+import dev.salint.engine.graphics.*;
 import dev.salint.engine.scene.Camera;
 import dev.salint.engine.scene.Transform;
 import dev.salint.engine.window.Window;
 import org.joml.Matrix4f;
 import org.lwjgl.glfw.GLFW;
 
-import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL11C.GL_COLOR_BUFFER_BIT;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
-import static org.lwjgl.opengl.GL13.glActiveTexture;
 
 public class Main {
     static void main(String[] args) {
 
-
         Window window = new Window(800, 500, "Game Engine");
-
-        glEnable(GL_DEPTH_TEST);
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
         double lastTime = GLFW.glfwGetTime();
 
@@ -80,9 +69,12 @@ public class Main {
         camera.position.set(0.0f, 0.0f, 2.0f);
 
         Transform transform = new Transform();
-
         transform.position.set(0.2f, 0.0f, -2.0f);
         transform.scale.set(1.5f, 1.5f, 1.5f);
+
+        Transform transform2 = new Transform();
+        transform2.position.set(-1.0f, 0.0f, -2.0f);
+        transform2.scale.set(0.75f, 0.75f, 0.75f);
 
         Matrix4f projection = new Matrix4f()
                 .perspective(
@@ -95,8 +87,9 @@ public class Main {
         Shader shader = new Shader(vertexShaderSource, fragmentShaderSource);
 
         Texture texture = new Texture("/textures/test.png");
-        glActiveTexture(GL_TEXTURE0);
         texture.bind();
+
+        Material material = new Material(shader, texture);
 
         Renderer renderer = new Renderer();
 
@@ -111,7 +104,18 @@ public class Main {
             transform.rotation.y += 1.0f * deltaTime;
             transform.rotation.x += 0.5f * deltaTime;
 
-            renderer.render(triangle, shader, texture, transform, camera, projection);
+            transform2.rotation.y += 0.5f * deltaTime;
+            transform2.rotation.x += 1.0f * deltaTime;
+
+            renderer.render(triangle, material , transform, camera, projection);
+
+            renderer.render(
+                    triangle,
+                    material,
+                    transform2,
+                    camera,
+                    projection
+            );
 
             window.update();
         }
