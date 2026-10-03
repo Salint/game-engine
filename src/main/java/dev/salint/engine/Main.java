@@ -3,6 +3,7 @@ package dev.salint.engine;
 import dev.salint.engine.graphics.*;
 import dev.salint.engine.scene.Camera;
 import dev.salint.engine.scene.GameObject;
+import dev.salint.engine.scene.Light;
 import dev.salint.engine.scene.Scene;
 import dev.salint.engine.window.Window;
 import org.joml.Matrix4f;
@@ -19,16 +20,68 @@ public class Main {
         Renderer renderer = new Renderer();
 
         float[] vertices = {
-                // position          // UV
-                -0.5f, -0.5f, 0.0f,  0.0f, 0.0f,
-                0.5f, -0.5f, 0.0f,  1.0f, 0.0f,
-                0.5f,  0.5f, 0.0f,  1.0f, 1.0f,
-                -0.5f,  0.5f, 0.0f,  0.0f, 1.0f
+                // FRONT
+                // position          // normal          // UV
+                -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f, 0.0f,
+                0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f, 0.0f,
+                0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f, 1.0f,
+                -0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f, 0.0f, 1.0f,
+
+                // BACK
+                0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
+                -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 0.0f,
+                -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
+                0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 1.0f,
+
+                // LEFT
+                -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
+                -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
+                -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
+                -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+
+                // RIGHT
+                0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
+                0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
+                0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
+                0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+
+                // TOP
+                -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 0.0f,
+                0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
+                0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 1.0f,
+                -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f,
+
+                // BOTTOM
+                -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 0.0f,
+                0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
+                0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 1.0f,
+                -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f
         };
 
         int[] indices = {
-                0, 1, 2,
-                0, 2, 3
+                // FRONT
+                0,  1,  2,
+                0,  2,  3,
+
+                // BACK
+                4,  5,  6,
+                4,  6,  7,
+
+                // LEFT
+                8,  9, 10,
+                8, 10, 11,
+
+                // RIGHT
+                12, 13, 14,
+                12, 14, 15,
+
+                // TOP
+                16, 17, 18,
+                16, 18, 19,
+
+                // BOTTOM
+                20, 21, 22,
+                20, 22, 23
         };
 
         Mesh triangle = new Mesh(vertices, indices);
@@ -37,19 +90,23 @@ public class Main {
         #version 330 core
 
         layout (location = 0) in vec3 position;
-        layout (location = 1) in vec2 texCoords;
+        layout (location = 1) in vec3 normal;
+        layout (location = 2) in vec2 texCoords;
         
         uniform mat4 model;
         uniform mat4 view;
         uniform mat4 projection;
     
         out vec2 uv;
+        out vec3 vertexNormal;
 
         void main()
         {
             gl_Position = projection * view * model * vec4(position, 1.0);
             
             uv = texCoords;
+            mat3 normalMatrix = transpose(inverse(mat3(model)));
+            vertexNormal = normalize(normalMatrix * normal);
         }
         """;
 
@@ -57,13 +114,23 @@ public class Main {
         #version 330 core
 
         in vec2 uv;
+        in vec3 vertexNormal;
         out vec4 color;
         
         uniform sampler2D textureSampler;
+        uniform vec3 lightDirection;
+        uniform vec3 lightColor;
 
         void main()
         {
-            color = texture(textureSampler, uv);
+            vec3 normal = normalize(vertexNormal);
+            vec3 light = normalize(-lightDirection);
+    
+            float intensity = max(dot(normal, light), 0.2);
+    
+            vec4 textureColor = texture(textureSampler, uv);
+    
+            color = textureColor * vec4(lightColor * intensity, 1.0);
         }
         """;
 
@@ -86,12 +153,20 @@ public class Main {
 
         Material material = new Material(shader, texture);
 
-        GameObject plane = new GameObject();
-        plane.meshRenderer = new MeshRenderer(triangle, material);
+        GameObject cube = new GameObject();
+        cube.transform.position.z = -2f;
+        cube.meshRenderer = new MeshRenderer(triangle, material);
 
         Scene mainScene = new Scene();
-        mainScene.add(plane);
+        mainScene.add(cube);
 
+        Light sun = new Light();
+        sun.direction.set(
+                -1.0f,
+                -1.0f,
+                -1.0f
+        );
+        mainScene.add(sun);
 
         while(!window.shouldClose()) {
 
@@ -101,8 +176,7 @@ public class Main {
 
             renderer.begin();
 
-            plane.transform.rotation.y += 1.0f * deltaTime;
-            plane.transform.rotation.x += 0.5f * deltaTime;
+            cube.transform.rotation.y += 1.0f * deltaTime;
 
             renderer.render(mainScene, camera, projection);
 

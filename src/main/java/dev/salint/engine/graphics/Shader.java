@@ -1,6 +1,7 @@
 package dev.salint.engine.graphics;
 
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
 import static org.lwjgl.opengl.GL20.*;
 
@@ -85,6 +86,23 @@ public class Shader {
         }
 
         glUniform1i(location, value);
+    }
+
+    public void setVector3f(String name, Vector3f value) {
+        int location = glGetUniformLocation(program, name);
+
+        if (location == -1) {
+            throw new IllegalArgumentException(
+                    "Uniform not found: " + name
+            );
+        }
+
+        glUniform3f(
+                location,
+                value.x,
+                value.y,
+                value.z
+        );
     }
 
     public void destroy() {
