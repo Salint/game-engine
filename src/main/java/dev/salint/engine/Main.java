@@ -3,6 +3,7 @@ package dev.salint.engine;
 import dev.salint.engine.graphics.*;
 import dev.salint.engine.scene.Camera;
 import dev.salint.engine.scene.GameObject;
+import dev.salint.engine.scene.Scene;
 import dev.salint.engine.window.Window;
 import org.joml.Matrix4f;
 import org.lwjgl.glfw.GLFW;
@@ -14,6 +15,8 @@ public class Main {
         Window window = new Window(800, 500, "Game Engine");
 
         double lastTime = GLFW.glfwGetTime();
+
+        Renderer renderer = new Renderer();
 
         float[] vertices = {
                 // position          // UV
@@ -86,7 +89,9 @@ public class Main {
         GameObject plane = new GameObject();
         plane.meshRenderer = new MeshRenderer(triangle, material);
 
-        Renderer renderer = new Renderer();
+        Scene mainScene = new Scene();
+        mainScene.add(plane);
+
 
         while(!window.shouldClose()) {
 
@@ -99,7 +104,7 @@ public class Main {
             plane.transform.rotation.y += 1.0f * deltaTime;
             plane.transform.rotation.x += 0.5f * deltaTime;
 
-            renderer.render(plane, camera, projection);
+            renderer.render(mainScene, camera, projection);
 
             window.update();
         }

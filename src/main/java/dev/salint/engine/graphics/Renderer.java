@@ -2,6 +2,7 @@ package dev.salint.engine.graphics;
 
 import dev.salint.engine.scene.Camera;
 import dev.salint.engine.scene.GameObject;
+import dev.salint.engine.scene.Scene;
 import org.joml.Matrix4f;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -18,19 +19,21 @@ public class Renderer {
     }
 
     public void render(
-            GameObject gameObject,
+            Scene scene,
             Camera camera,
             Matrix4f projection
     ) {
-       gameObject.meshRenderer.material.shader.bind();
+       for(GameObject gameObject : scene.getGameObjects()) {
+           gameObject.meshRenderer.material.shader.bind();
 
-        gameObject.meshRenderer.material.shader.setMatrix4f("model", gameObject.transform.getModelMatrix());
-        gameObject.meshRenderer.material.shader.setMatrix4f("view", camera.getViewMatrix());
-        gameObject.meshRenderer.material.shader.setMatrix4f("projection", projection);
-        gameObject.meshRenderer.material.shader.setInt("textureSampler", 0);
+           gameObject.meshRenderer.material.shader.setMatrix4f("model", gameObject.transform.getModelMatrix());
+           gameObject.meshRenderer.material.shader.setMatrix4f("view", camera.getViewMatrix());
+           gameObject.meshRenderer.material.shader.setMatrix4f("projection", projection);
+           gameObject.meshRenderer.material.shader.setInt("textureSampler", 0);
 
-        gameObject.meshRenderer.material.texture.bind();
+           gameObject.meshRenderer.material.texture.bind();
 
-        gameObject.meshRenderer.mesh.draw();
+           gameObject.meshRenderer.mesh.draw();
+        }
     }
 }
