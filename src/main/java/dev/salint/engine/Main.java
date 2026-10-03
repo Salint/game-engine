@@ -2,7 +2,7 @@ package dev.salint.engine;
 
 import dev.salint.engine.graphics.*;
 import dev.salint.engine.scene.Camera;
-import dev.salint.engine.scene.Transform;
+import dev.salint.engine.scene.GameObject;
 import dev.salint.engine.window.Window;
 import org.joml.Matrix4f;
 import org.lwjgl.glfw.GLFW;
@@ -68,14 +68,6 @@ public class Main {
 
         camera.position.set(0.0f, 0.0f, 2.0f);
 
-        Transform transform = new Transform();
-        transform.position.set(0.2f, 0.0f, -2.0f);
-        transform.scale.set(1.5f, 1.5f, 1.5f);
-
-        Transform transform2 = new Transform();
-        transform2.position.set(-1.0f, 0.0f, -2.0f);
-        transform2.scale.set(0.75f, 0.75f, 0.75f);
-
         Matrix4f projection = new Matrix4f()
                 .perspective(
                         (float) Math.toRadians(60.0f),
@@ -91,6 +83,9 @@ public class Main {
 
         Material material = new Material(shader, texture);
 
+        GameObject plane = new GameObject();
+        plane.meshRenderer = new MeshRenderer(triangle, material);
+
         Renderer renderer = new Renderer();
 
         while(!window.shouldClose()) {
@@ -101,21 +96,10 @@ public class Main {
 
             renderer.begin();
 
-            transform.rotation.y += 1.0f * deltaTime;
-            transform.rotation.x += 0.5f * deltaTime;
+            plane.transform.rotation.y += 1.0f * deltaTime;
+            plane.transform.rotation.x += 0.5f * deltaTime;
 
-            transform2.rotation.y += 0.5f * deltaTime;
-            transform2.rotation.x += 1.0f * deltaTime;
-
-            renderer.render(triangle, material , transform, camera, projection);
-
-            renderer.render(
-                    triangle,
-                    material,
-                    transform2,
-                    camera,
-                    projection
-            );
+            renderer.render(plane, camera, projection);
 
             window.update();
         }
