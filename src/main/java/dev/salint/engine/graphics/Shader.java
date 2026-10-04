@@ -4,12 +4,15 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.lwjgl.opengl.GL20.*;
 
 public class Shader {
 
     private final int program;
+    private final Map<String, Integer> uniformLocations = new HashMap<>();
 
     public Shader(String vertexPath, String fragmentPath) {
 
@@ -63,7 +66,7 @@ public class Shader {
 
     public void setMatrix4f(String name, Matrix4f matrix) {
 
-        int location = glGetUniformLocation(program, name);
+        int location = getUniformLocation(name);
 
         if (location == -1) {
             throw new IllegalArgumentException(
@@ -83,7 +86,7 @@ public class Shader {
     }
 
     public void setInt(String name, int value) {
-        int location = glGetUniformLocation(program, name);
+        int location = getUniformLocation(name);
 
         if (location == -1) {
             throw new IllegalArgumentException(
@@ -95,7 +98,7 @@ public class Shader {
     }
 
     public void setVector3f(String name, Vector3f value) {
-        int location = glGetUniformLocation(program, name);
+        int location = getUniformLocation(name);
 
         if (location == -1) {
             throw new IllegalArgumentException(
@@ -135,5 +138,25 @@ public class Shader {
                     e
             );
         }
+    }
+    private int getUniformLocation(String name) {
+
+        Integer cached = uniformLocations.get(name);
+
+        if (cached != null) {
+            return cached;
+        }
+
+        int location = glGetUniformLocation(program, name);
+
+        if (location == -1) {
+            throw new IllegalArgumentException(
+                    "Uniform not found: " + name
+            );
+        }
+
+        uniformLocations.put(name, location);
+
+        return location;
     }
 }
