@@ -25,7 +25,7 @@ void main()
     {
         vec3 light = normalize(-lights[i].direction);
 
-        float intensity = max(dot(normal, light), 0.1);
+        float intensity = max(dot(normal, light), 0.3);
 
         lighting += lights[i].color * intensity;
     }

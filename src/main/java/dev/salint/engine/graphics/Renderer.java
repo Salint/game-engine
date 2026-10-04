@@ -13,7 +13,7 @@ public class Renderer {
     public Renderer() {
         glEnable(GL_CULL_FACE);
         glEnable(GL_DEPTH_TEST);
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glClearColor(0.0f, 0.8f, 1f, 1.0f);
         glCullFace(GL_BACK);
     }
 

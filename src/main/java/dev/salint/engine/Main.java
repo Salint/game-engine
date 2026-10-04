@@ -20,73 +20,6 @@ public class Main {
 
         Renderer renderer = new Renderer();
 
-        float[] vertices = {
-                // FRONT
-                // position          // normal          // UV
-                -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f, 0.0f,
-                0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f, 0.0f,
-                0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f, 1.0f,
-                -0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f, 0.0f, 1.0f,
-
-                // BACK
-                0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
-                -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 0.0f,
-                -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
-                0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 1.0f,
-
-                // LEFT
-                -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
-                -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-                -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
-                -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-
-                // RIGHT
-                0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
-                0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-                0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
-                0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-
-                // TOP
-                -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 0.0f,
-                0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
-                0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 1.0f,
-                -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f,
-
-                // BOTTOM
-                -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 0.0f,
-                0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
-                0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 1.0f,
-                -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f
-        };
-
-        int[] indices = {
-                // FRONT
-                0,  1,  2,
-                0,  2,  3,
-
-                // BACK
-                4,  5,  6,
-                4,  6,  7,
-
-                // LEFT
-                8,  9, 10,
-                8, 10, 11,
-
-                // RIGHT
-                12, 13, 14,
-                12, 14, 15,
-
-                // TOP
-                16, 17, 18,
-                16, 18, 19,
-
-                // BOTTOM
-                20, 21, 22,
-                20, 22, 23
-        };
-
-        Mesh triangle = new Mesh(vertices, indices);
-
         Camera camera = new Camera();
 
         camera.position.set(0.0f, 0.0f, 2.0f);
@@ -102,28 +35,46 @@ public class Main {
         Shader shader = new Shader("/shaders/basic/vertex.glsl", "/shaders/basic/fragment.glsl");
 
         Texture texture = new Texture("/textures/test.png");
-        texture.bind();
+
 
         Material material = new Material(shader, texture);
 
+        Mesh cubeMesh = Mesh.cube();
+
         GameObject cube = new GameObject();
         cube.transform.position.z = -2f;
-        cube.meshRenderer = new MeshRenderer(triangle, material);
+        cube.meshRenderer = new MeshRenderer(cubeMesh, material);
 
         GameObject cube2 = new GameObject();
         cube2.transform.position.z = -4f;
         cube2.transform.position.x = 2f;
-        cube2.meshRenderer = new MeshRenderer(triangle, material);
+        cube2.meshRenderer = new MeshRenderer(cubeMesh, material);
 
         GameObject cube3 = new GameObject();
         cube3.transform.position.z = -4f;
         cube3.transform.position.x = -2f;
-        cube3.meshRenderer = new MeshRenderer(triangle, material);
+        cube3.meshRenderer = new MeshRenderer(cubeMesh, material);
+
+        Texture grassTexture = new Texture("/textures/grass.png");
+
+        Material grassMaterial = new Material(shader, grassTexture);
 
         Scene mainScene = new Scene();
         mainScene.add(cube);
         mainScene.add(cube2);
         mainScene.add(cube3);
+
+        Mesh plane = Mesh.plane();
+        for(int i = -26; i < 50; i++) {
+            for(int j = -26; j < 50; j++) {
+                GameObject ground = new GameObject();
+                ground.transform.position.x = i * 1f;
+                ground.transform.position.y = -0.5f;
+                ground.transform.position.z = j * 1f;
+                ground.meshRenderer = new MeshRenderer(plane, grassMaterial);
+                mainScene.add(ground);
+            }
+        }
 
         Light sun = new Light();
         sun.direction.set(
@@ -168,6 +119,6 @@ public class Main {
 
         shader.destroy();
         window.destroy();
-        triangle.destroy();
+        cubeMesh.destroy();
     }
 }
