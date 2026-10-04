@@ -86,54 +86,6 @@ public class Main {
 
         Mesh triangle = new Mesh(vertices, indices);
 
-        String vertexShaderSource = """
-        #version 330 core
-
-        layout (location = 0) in vec3 position;
-        layout (location = 1) in vec3 normal;
-        layout (location = 2) in vec2 texCoords;
-        
-        uniform mat4 model;
-        uniform mat4 view;
-        uniform mat4 projection;
-    
-        out vec2 uv;
-        out vec3 vertexNormal;
-
-        void main()
-        {
-            gl_Position = projection * view * model * vec4(position, 1.0);
-            
-            uv = texCoords;
-            mat3 normalMatrix = transpose(inverse(mat3(model)));
-            vertexNormal = normalize(normalMatrix * normal);
-        }
-        """;
-
-        String fragmentShaderSource = """
-        #version 330 core
-
-        in vec2 uv;
-        in vec3 vertexNormal;
-        out vec4 color;
-        
-        uniform sampler2D textureSampler;
-        uniform vec3 lightDirection;
-        uniform vec3 lightColor;
-
-        void main()
-        {
-            vec3 normal = normalize(vertexNormal);
-            vec3 light = normalize(-lightDirection);
-    
-            float intensity = max(dot(normal, light), 0.2);
-    
-            vec4 textureColor = texture(textureSampler, uv);
-    
-            color = textureColor * vec4(lightColor * intensity, 1.0);
-        }
-        """;
-
         Camera camera = new Camera();
 
         camera.position.set(0.0f, 0.0f, 2.0f);
@@ -146,7 +98,7 @@ public class Main {
                         100.0f
                 );
 
-        Shader shader = new Shader(vertexShaderSource, fragmentShaderSource);
+        Shader shader = new Shader("/shaders/basic/vertex.glsl", "/shaders/basic/fragment.glsl");
 
         Texture texture = new Texture("/textures/test.png");
         texture.bind();

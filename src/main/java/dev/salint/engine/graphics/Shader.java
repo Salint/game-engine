@@ -3,15 +3,21 @@ package dev.salint.engine.graphics;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
+import java.io.InputStream;
+
 import static org.lwjgl.opengl.GL20.*;
 
 public class Shader {
 
     private final int program;
 
-    public Shader(String vertexSource, String fragmentSource) {
+    public Shader(String vertexPath, String fragmentPath) {
+
+        String vertexSource = readResource(vertexPath);
+        String fragmentSource = readResource(fragmentPath);
 
         int vertexShader = glCreateShader(GL_VERTEX_SHADER);
+
         glShaderSource(vertexShader, vertexSource);
         glCompileShader(vertexShader);
 
@@ -107,5 +113,27 @@ public class Shader {
 
     public void destroy() {
         glDeleteProgram(program);
+    }
+
+    private static String readResource(String path) {
+        try (var input = Shader.class.getResourceAsStream(path)) {
+
+            if (input == null) {
+                throw new IllegalStateException(
+                        "Shader resource not found: " + path
+                );
+            }
+
+            return new String(
+                    input.readAllBytes(),
+                    java.nio.charset.StandardCharsets.UTF_8
+            );
+
+        } catch (java.io.IOException e) {
+            throw new RuntimeException(
+                    "Failed to read shader: " + path,
+                    e
+            );
+        }
     }
 }
