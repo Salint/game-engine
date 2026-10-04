@@ -7,6 +7,7 @@ import dev.salint.engine.scene.Light;
 import dev.salint.engine.scene.Scene;
 import dev.salint.engine.window.Window;
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
 
 
@@ -109,8 +110,20 @@ public class Main {
         cube.transform.position.z = -2f;
         cube.meshRenderer = new MeshRenderer(triangle, material);
 
+        GameObject cube2 = new GameObject();
+        cube2.transform.position.z = -4f;
+        cube2.transform.position.x = 2f;
+        cube2.meshRenderer = new MeshRenderer(triangle, material);
+
+        GameObject cube3 = new GameObject();
+        cube3.transform.position.z = -4f;
+        cube3.transform.position.x = -2f;
+        cube3.meshRenderer = new MeshRenderer(triangle, material);
+
         Scene mainScene = new Scene();
         mainScene.add(cube);
+        mainScene.add(cube2);
+        mainScene.add(cube3);
 
         Light sun = new Light();
         sun.direction.set(
@@ -128,7 +141,25 @@ public class Main {
 
             renderer.begin();
 
-            cube.transform.rotation.y += 1.0f * deltaTime;
+            Vector3f move = new Vector3f();
+
+            if (window.isKeyDown(GLFW.GLFW_KEY_A)) {
+                move.add(camera.getRight().mul(deltaTime));
+            }
+            else if (window.isKeyDown(GLFW.GLFW_KEY_D)) {
+                move.sub(camera.getRight().mul(deltaTime));
+            }
+
+            if (window.isKeyDown(GLFW.GLFW_KEY_W)) {
+                move.add(camera.getForward().mul(deltaTime));
+            }
+            else if (window.isKeyDown(GLFW.GLFW_KEY_S)) {
+                move.sub(camera.getForward().mul(deltaTime));
+            }
+            camera.position.add(move);
+
+            if(window.isKeyDown(GLFW.GLFW_KEY_RIGHT)) camera.rotation.y -= 1.0f * deltaTime;
+            else if(window.isKeyDown(GLFW.GLFW_KEY_LEFT)) camera.rotation.y += 1.0f * deltaTime;
 
             renderer.render(mainScene, camera, projection);
 

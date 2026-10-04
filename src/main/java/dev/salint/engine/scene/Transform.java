@@ -20,4 +20,11 @@ public class Transform {
                 )
                 .scale(scale);
     }
+
+    public Vector3f getForward() {
+        return new Vector3f(0.0f, 0.0f, -1.0f)
+                .rotateX(rotation.x)
+                .rotateY(rotation.y)
+                .rotateZ(rotation.z);
+    }
 }

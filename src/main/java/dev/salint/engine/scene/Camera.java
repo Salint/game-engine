@@ -22,4 +22,18 @@ public class Camera {
                         -position.z
                 );
     }
+
+    public Vector3f getForward() {
+        return new Vector3f(0.0f, 0.0f, -1f)
+                .rotateX(rotation.x)
+                .rotateY(rotation.y)
+                .rotateZ(rotation.z);
+    }
+
+    public Vector3f getRight() {
+        return new Vector3f(-1f, 0f, 0f)
+                .rotateX(rotation.x)
+                .rotateY(rotation.y)
+                .rotateZ(rotation.z);
+    }
 }

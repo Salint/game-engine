@@ -1,13 +1,14 @@
 package dev.salint.engine.window;
 
 import org.lwjgl.glfw.GLFW;
+import org.lwjgl.glfw.GLFWKeyCallback;
 import org.lwjgl.opengl.GL;
-
-import static org.lwjgl.opengl.GL11.glEnable;
 
 public class Window {
 
     private final long handle;
+    private final boolean[] keys = new boolean[GLFW.GLFW_KEY_LAST + 1];
+    private final GLFWKeyCallback keyCallback;
 
     public Window(int width, int height, String title) {
 
@@ -33,6 +34,21 @@ public class Window {
             throw new IllegalStateException("Unable to create GLFW window");
         }
 
+        keyCallback = GLFW.glfwSetKeyCallback(
+                handle,
+                (window, key, scancode, action, mods) -> {
+
+                    if (key >= 0 && key < keys.length) {
+                        if (action == GLFW.GLFW_PRESS) {
+                            keys[key] = true;
+                        }
+                        else if (action == GLFW.GLFW_RELEASE) {
+                            keys[key] = false;
+                        }
+                    }
+                }
+        );
+
         GLFW.glfwMakeContextCurrent(handle);
 
         GLFW.glfwSwapInterval(1);
@@ -49,7 +65,13 @@ public class Window {
     }
 
     public void destroy() {
+        keyCallback.close();
+
         GLFW.glfwDestroyWindow(handle);
         GLFW.glfwTerminate();
+    }
+
+    public boolean isKeyDown(int key) {
+        return keys[key];
     }
 }

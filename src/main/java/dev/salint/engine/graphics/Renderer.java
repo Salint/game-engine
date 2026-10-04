@@ -11,8 +11,10 @@ import static org.lwjgl.opengl.GL11.*;
 public class Renderer {
 
     public Renderer() {
+        glEnable(GL_CULL_FACE);
         glEnable(GL_DEPTH_TEST);
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glCullFace(GL_BACK);
     }
 
     public void begin() {
@@ -26,23 +28,37 @@ public class Renderer {
     ) {
        for(GameObject gameObject : scene.getGameObjects()) {
 
-           Light light = scene.getLights().getFirst();
-
            gameObject.meshRenderer.material.shader.bind();
 
            gameObject.meshRenderer.material.shader.setMatrix4f("model", gameObject.transform.getModelMatrix());
            gameObject.meshRenderer.material.shader.setMatrix4f("view", camera.getViewMatrix());
            gameObject.meshRenderer.material.shader.setMatrix4f("projection", projection);
            gameObject.meshRenderer.material.shader.setInt("textureSampler", 0);
-           gameObject.meshRenderer.material.shader.setVector3f(
-                   "lightDirection",
-                   light.direction
+
+           int lightCount = Math.min(
+                   scene.getLights().size(),
+                   4
            );
 
-           gameObject.meshRenderer.material.shader.setVector3f(
-                   "lightColor",
-                   light.color
+           gameObject.meshRenderer.material.shader.setInt(
+                   "lightCount",
+                   lightCount
            );
+
+           for (int i = 0; i < lightCount; i++) {
+
+               Light light = scene.getLights().get(i);
+
+               gameObject.meshRenderer.material.shader.setVector3f(
+                       "lights[" + i + "].direction",
+                       light.direction
+               );
+
+               gameObject.meshRenderer.material.shader.setVector3f(
+                       "lights[" + i + "].color",
+                       light.color
+               );
+           }
 
            gameObject.meshRenderer.material.texture.bind();
 
