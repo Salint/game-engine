@@ -16,8 +16,7 @@ public class Main {
 
         Window window = new Window(800, 500, "Game Engine");
 
-        double lastTime = GLFW.glfwGetTime();
-
+        Time time = new Time();
         Renderer renderer = new Renderer();
 
         Camera camera = new Camera();
@@ -35,7 +34,6 @@ public class Main {
         Shader shader = new Shader("/shaders/basic/vertex.glsl", "/shaders/basic/fragment.glsl");
 
         Texture texture = new Texture("/textures/test.png");
-
 
         Material material = new Material(shader, texture);
 
@@ -85,35 +83,32 @@ public class Main {
         mainScene.add(sun);
 
         while(!window.shouldClose()) {
-
-            double currentTime = GLFW.glfwGetTime();
-            float deltaTime = (float) (currentTime - lastTime);
-            lastTime = currentTime;
-
             renderer.begin();
+            time.update();
 
             Vector3f move = new Vector3f();
 
             if (window.isKeyDown(GLFW.GLFW_KEY_A)) {
-                move.add(camera.getRight().mul(deltaTime));
+                move.add(camera.getRight().mul(time.getDeltaTime()));
             }
             else if (window.isKeyDown(GLFW.GLFW_KEY_D)) {
-                move.sub(camera.getRight().mul(deltaTime));
+                move.sub(camera.getRight().mul(time.getDeltaTime()));
             }
 
             if (window.isKeyDown(GLFW.GLFW_KEY_W)) {
-                move.add(camera.getForward().mul(deltaTime));
+                move.add(camera.getForward().mul(time.getDeltaTime()));
             }
             else if (window.isKeyDown(GLFW.GLFW_KEY_S)) {
-                move.sub(camera.getForward().mul(deltaTime));
+                move.sub(camera.getForward().mul(time.getDeltaTime()));
             }
+
+            if(move.length() > 1) move.normalize();
             camera.position.add(move);
 
-            if(window.isKeyDown(GLFW.GLFW_KEY_RIGHT)) camera.rotation.y -= 1.0f * deltaTime;
-            else if(window.isKeyDown(GLFW.GLFW_KEY_LEFT)) camera.rotation.y += 1.0f * deltaTime;
+            if(window.isKeyDown(GLFW.GLFW_KEY_RIGHT)) camera.rotation.y -= 1.0f * time.getDeltaTime();
+            else if(window.isKeyDown(GLFW.GLFW_KEY_LEFT)) camera.rotation.y += 1.0f * time.getDeltaTime();
 
             renderer.render(mainScene, camera, projection);
-
             window.update();
         }
 
